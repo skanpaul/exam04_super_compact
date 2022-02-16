@@ -78,6 +78,8 @@ void	ft_exec(t_data *data, char **av, char **envp)
 		write(2, cmd_error, ft_strlen(cmd_error));
 		write(2, av[0], ft_strlen(av[0]));
 		write(2, "\n", 1);
+		close(data->old_stdin);
+		exit(1);
 	}
 	else
 	{
