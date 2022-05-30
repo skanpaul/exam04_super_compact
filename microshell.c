@@ -6,7 +6,7 @@
 /*   By: ski <ski@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 16:44:07 by ski               #+#    #+#             */
-/*   Updated: 2022/05/30 16:48:14 by ski              ###   ########.fr       */
+/*   Updated: 2022/05/30 17:10:12 by ski              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ int	main(int argc, char **argv, char **envp)
 
 	while (argv[i])
 	{
+		// ---------------------------------------------------------
 		if (strcmp(argv[i], "|") == 0 || strcmp(argv[i], ";") == 0)
 		{
 			if (strcmp(argv[i], "|") == 0)
@@ -51,9 +52,12 @@ int	main(int argc, char **argv, char **envp)
 			data.stdout_pipe = 0;
 			j = i + 1;
 		}
+		// ---------------------------------------------------------
 		else if (argv[i + 1] == NULL)
 			ft_exec(&data, &argv[j], envp);
+		// ---------------------------------------------------------
 		i++;
+		// ---------------------------------------------------------
 	}
 	close(data.old_stdin);
 	return (0);
@@ -97,24 +101,33 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 	char *fatal_error = "error: fatal\n";
 	char *cmd_error = "error: cannot execute ";
 
+	
+	// ---------------------------------------------------------
+	// ---------------------------------------------------------
 	if (argv[0] == NULL)
 		return ;
+	// ---------------------------------------------------------
+	// ---------------------------------------------------------
 	if (strcmp(argv[0], "cd") == 0)
 	{
 		ft_cd(argv);
 		return ;
 	}
+	// ---------------------------------------------------------
+	// ---------------------------------------------------------
 	if (data->stdout_pipe == 1 && pipe(pipefd) == -1)
 	{
 		write(2, fatal_error, ft_strlen(fatal_error));
 		exit(1);
 	}
+	// ---------------------------------------------- fork_error
 	fd = fork();
 	if (fd == -1)
 	{
 		write(2, fatal_error, ft_strlen(fatal_error));
 		exit(1);
 	}
+	// ---------------------------------------------- fork_CHILD
 	if (fd == 0)
 	{
 		if (data->stdout_pipe == 1)
@@ -131,6 +144,7 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 		close(data->old_stdin);
 		exit(1);
 	}
+	// --------------------------------------------- fork_PARENT
 	else
 	{
 		if (data->stdout_pipe == 1)
@@ -143,6 +157,7 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 			dup2(data->old_stdin, STDIN_FILENO);
 		waitpid(fd, &data->status, 0);
 	}
+	// ---------------------------------------------------------
 }
 
 /* ************************************************************************** */
