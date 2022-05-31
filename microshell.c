@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   microshell.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ski <ski@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: sorakann <sorakann@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 16:44:07 by ski               #+#    #+#             */
-/*   Updated: 2022/05/30 17:10:12 by ski              ###   ########.fr       */
+/*   Updated: 2022/05/31 07:08:53 by sorakann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,15 @@
 #include <string.h>
 #include <stdio.h>
 
+# define TYPE_NORMAL	0
+# define TYPE_PIPE		1
+
 /* ************************************************************************** */
 typedef struct	s_data
 {
 	int status;
-	int	stdout_pipe;
-	int	old_stdin;
+	int	output_type;
+	int	stdin_original;
 }				t_data;
 
 /* ************************************************************************** */
@@ -37,8 +40,8 @@ int	main(int argc, char **argv, char **envp)
 	int j = 1;
 	t_data data;
 	data.status = 0;
-	data.stdout_pipe = 0;
-	data.old_stdin = dup(STDIN_FILENO);
+	data.output_type = 0;
+	data.stdin_original = dup(STDIN_FILENO);
 
 	while (argv[i])
 	{
@@ -46,10 +49,10 @@ int	main(int argc, char **argv, char **envp)
 		if (strcmp(argv[i], "|") == 0 || strcmp(argv[i], ";") == 0)
 		{
 			if (strcmp(argv[i], "|") == 0)
-				data.stdout_pipe = 1;
+				data.output_type = 1;
 			argv[i] = NULL;
 			ft_exec(&data, &argv[j], envp);
-			data.stdout_pipe = 0;
+			data.output_type = 0;
 			j = i + 1;
 		}
 		// ---------------------------------------------------------
@@ -59,7 +62,7 @@ int	main(int argc, char **argv, char **envp)
 		i++;
 		// ---------------------------------------------------------
 	}
-	close(data.old_stdin);
+	close(data.stdin_original);
 	return (0);
 }
 
@@ -115,7 +118,7 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 	}
 	// ---------------------------------------------------------
 	// ---------------------------------------------------------
-	if (data->stdout_pipe == 1 && pipe(pipefd) == -1)
+	if (data->output_type == 1 && pipe(pipefd) == -1)
 	{
 		write(2, fatal_error, ft_strlen(fatal_error));
 		exit(1);
@@ -130,7 +133,7 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 	// ---------------------------------------------- fork_CHILD
 	if (fd == 0)
 	{
-		if (data->stdout_pipe == 1)
+		if (data->output_type == 1)
 		{
 			close(pipefd[0]);
 			dup2(pipefd[1], STDOUT_FILENO);
@@ -141,20 +144,20 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 		write(2, cmd_error, ft_strlen(cmd_error));
 		write(2, argv[0], ft_strlen(argv[0]));
 		write(2, "\n", 1);
-		close(data->old_stdin);
+		close(data->stdin_original);
 		exit(1);
 	}
 	// --------------------------------------------- fork_PARENT
 	else
 	{
-		if (data->stdout_pipe == 1)
+		if (data->output_type == 1)
 		{
 			close(pipefd[1]);
 			dup2(pipefd[0], STDIN_FILENO);
 			close(pipefd[0]);
 		}
 		else
-			dup2(data->old_stdin, STDIN_FILENO);
+			dup2(data->stdin_original, STDIN_FILENO);
 		waitpid(fd, &data->status, 0);
 	}
 	// ---------------------------------------------------------
