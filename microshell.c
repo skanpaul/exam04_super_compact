@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   microshell.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sorakann <sorakann@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ski <ski@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 16:44:07 by ski               #+#    #+#             */
-/*   Updated: 2022/05/31 07:33:38 by sorakann         ###   ########.fr       */
+/*   Updated: 2022/05/31 08:43:01 by ski              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,11 @@ int	main(int argc, char **argv, char **envp)
 	while (argv[i])
 	{
 		// ---------------------------------------------------------
+		// get [j], the (next) first position of the command in argv[j]
+		// get [i], the (next) last position of the command in argv[i]
+		// set [output_type]
+		// add NULL in argv[]		
+		// ---------------------------------------------------------
 		if (strcmp(argv[i], "|") == 0 || strcmp(argv[i], ";") == 0)
 		{
 			if (strcmp(argv[i], "|") == 0)
@@ -67,7 +72,6 @@ int	main(int argc, char **argv, char **envp)
 }
 
 /* ************************************************************************** */
-
 int	ft_strlen(char *str)
 {
 	int i = 0;
