@@ -6,7 +6,7 @@
 /*   By: ski <ski@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 16:44:07 by ski               #+#    #+#             */
-/*   Updated: 2022/05/31 08:43:01 by ski              ###   ########.fr       */
+/*   Updated: 2022/05/31 08:45:21 by ski              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,16 +85,16 @@ int	ft_strlen(char *str)
 void	ft_cd(char **argv)
 {
 	int i = 0;
-	char *arg_error = "error: cd: bad arguments\n";
-	char *path_error = "error: cd: cannot change directory to ";
+	char *error_arg = "error: cd: bad arguments\n";
+	char *error_path = "error: cd: cannot change directory to ";
 
 	while (argv[i])
 		i++;
 	if (i != 2)
-		write(2, arg_error, ft_strlen(arg_error));
+		write(2, error_arg, ft_strlen(error_arg));
 	else if (chdir(argv[1]) == -1)
 	{
-		write(2, path_error, ft_strlen(path_error));
+		write(2, error_path, ft_strlen(error_path));
 		write(2, argv[1], ft_strlen(argv[1]));
 		write(2, "\n", 1);
 	}
@@ -105,33 +105,29 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 {
 	int fd;
 	int	pipefd[2];
-	char *fatal_error = "error: fatal\n";
-	char *cmd_error = "error: cannot execute ";
+	char *error_fatal = "error: fatal\n";
+	char *error_cmd = "error: cannot execute ";
 
-	
-	// ---------------------------------------------------------
 	// ---------------------------------------------------------
 	if (argv[0] == NULL)
 		return ;
-	// ---------------------------------------------------------
-	// ---------------------------------------------------------
+	// ---------------------------------------------- cd_builtin
 	if (strcmp(argv[0], "cd") == 0)
 	{
 		ft_cd(argv);
 		return ;
 	}
-	// ---------------------------------------------------------
-	// ---------------------------------------------------------
+	// ------------------------------------------- create pipe()
 	if (data->output_type == TYPE_PIPE && pipe(pipefd) == -1)
 	{
-		write(2, fatal_error, ft_strlen(fatal_error));
+		write(2, error_fatal, ft_strlen(error_fatal));
 		exit(1);
 	}
 	// ---------------------------------------------- fork_error
 	fd = fork();
 	if (fd == -1)
 	{
-		write(2, fatal_error, ft_strlen(fatal_error));
+		write(2, error_fatal, ft_strlen(error_fatal));
 		exit(1);
 	}
 	// ---------------------------------------------- fork_CHILD
@@ -144,7 +140,7 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 			close(pipefd[1]);
 		}
 		execve(argv[0], argv, envp);
-		write(2, cmd_error, ft_strlen(cmd_error));
+		write(2, error_cmd, ft_strlen(error_cmd));
 		write(2, argv[0], ft_strlen(argv[0]));
 		write(2, "\n", 1);
 		close(data->stdin_original);
