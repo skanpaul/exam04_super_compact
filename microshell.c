@@ -6,7 +6,7 @@
 /*   By: sorakann <sorakann@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 16:44:07 by ski               #+#    #+#             */
-/*   Updated: 2022/05/31 07:13:11 by sorakann         ###   ########.fr       */
+/*   Updated: 2022/05/31 07:33:38 by sorakann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,8 @@ void	ft_exec(t_data *data, char **argv, char **envp);
 int	main(int argc, char **argv, char **envp)
 {
 	(void)argc;
-	int i = 1;
-	int j = 1;
+	int i = 1;	//position of AFTER THE LAST argument of the  CURRENT command ==> argv[i]
+	int j = 1;	//position of FIRST argument of the  CURRENT command ==> argv[j]
 	t_data data;
 	data.status = 0;
 	data.output_type = TYPE_NORMAL;
@@ -49,7 +49,7 @@ int	main(int argc, char **argv, char **envp)
 		if (strcmp(argv[i], "|") == 0 || strcmp(argv[i], ";") == 0)
 		{
 			if (strcmp(argv[i], "|") == 0)
-				data.output_type = 1;
+				data.output_type = TYPE_PIPE;
 			argv[i] = NULL;
 			ft_exec(&data, &argv[j], envp);
 			data.output_type = TYPE_NORMAL;
@@ -138,7 +138,6 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 			close(pipefd[0]);
 			dup2(pipefd[1], STDOUT_FILENO);
 			close(pipefd[1]);
-
 		}
 		execve(argv[0], argv, envp);
 		write(2, cmd_error, ft_strlen(cmd_error));
