@@ -6,7 +6,7 @@
 /*   By: sorakann <sorakann@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 16:44:07 by ski               #+#    #+#             */
-/*   Updated: 2022/05/31 07:08:53 by sorakann         ###   ########.fr       */
+/*   Updated: 2022/05/31 07:13:11 by sorakann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	main(int argc, char **argv, char **envp)
 	int j = 1;
 	t_data data;
 	data.status = 0;
-	data.output_type = 0;
+	data.output_type = TYPE_NORMAL;
 	data.stdin_original = dup(STDIN_FILENO);
 
 	while (argv[i])
@@ -52,7 +52,7 @@ int	main(int argc, char **argv, char **envp)
 				data.output_type = 1;
 			argv[i] = NULL;
 			ft_exec(&data, &argv[j], envp);
-			data.output_type = 0;
+			data.output_type = TYPE_NORMAL;
 			j = i + 1;
 		}
 		// ---------------------------------------------------------
@@ -118,7 +118,7 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 	}
 	// ---------------------------------------------------------
 	// ---------------------------------------------------------
-	if (data->output_type == 1 && pipe(pipefd) == -1)
+	if (data->output_type == TYPE_PIPE && pipe(pipefd) == -1)
 	{
 		write(2, fatal_error, ft_strlen(fatal_error));
 		exit(1);
@@ -133,7 +133,7 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 	// ---------------------------------------------- fork_CHILD
 	if (fd == 0)
 	{
-		if (data->output_type == 1)
+		if (data->output_type == TYPE_PIPE)
 		{
 			close(pipefd[0]);
 			dup2(pipefd[1], STDOUT_FILENO);
@@ -150,7 +150,7 @@ void	ft_exec(t_data *data, char **argv, char **envp)
 	// --------------------------------------------- fork_PARENT
 	else
 	{
-		if (data->output_type == 1)
+		if (data->output_type == TYPE_PIPE)
 		{
 			close(pipefd[1]);
 			dup2(pipefd[0], STDIN_FILENO);
