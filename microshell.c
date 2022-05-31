@@ -6,7 +6,7 @@
 /*   By: ski <ski@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 16:44:07 by ski               #+#    #+#             */
-/*   Updated: 2022/05/31 08:45:21 by ski              ###   ########.fr       */
+/*   Updated: 2022/05/31 08:56:05 by ski              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,8 +88,11 @@ void	ft_cd(char **argv)
 	char *error_arg = "error: cd: bad arguments\n";
 	char *error_path = "error: cd: cannot change directory to ";
 
+	// ------------- check the number of argument for cd_builtin
 	while (argv[i])
 		i++;
+	// ---------------------------------------------------------
+	// ------------ print error if number of args different of 2
 	if (i != 2)
 		write(2, error_arg, ft_strlen(error_arg));
 	else if (chdir(argv[1]) == -1)
